@@ -1,2 +1,4 @@
 build
 *.log
+useful_output
+.gdb_history

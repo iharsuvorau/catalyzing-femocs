@@ -1,8 +1,12 @@
+#include "AtomReader.h"
 #include "Config.h"
 #include "Femocs.h"
+#include "GeneralProject.h"
 #include "Macros.h"
+#include "TetgenMesh.h"
 #include <stdlib.h>
 #include <vector>
+#include <vtkUnstructuredGrid.h>
 
 using namespace std;
 using namespace femocs;
@@ -87,24 +91,44 @@ void read_n_atoms(const string &file_name, int &n_atoms) {
   iss >> n_atoms;
 }
 
-void config(string filename) {
-  static bool first_call = true;
-    bool fail;
+void export_vtk_unstructured_grid(TetgenMesh *mesh, vtkUnstructuredGrid *grid) {
+  const size_t n_nodes = mesh->hexs.get_n_nodes();
+  const size_t n_cells = mesh->hexs.size();
+  const size_t celltype = mesh->hexs.get_cell_type();
 
-  Config config;
-  config.read_all(filename);
-  MODES.MUTE = false;
-  MODES.VERBOSE = true;
+  // vtkUnstructuredGrid *grid = new vtkUnstructuredGrid::New();
+  vtkPoints *points = vtkPoints::New();
 
-  // Pick correct flags for writing log file
-  MODES.WRITELOG = conf.behaviour.n_write_log != 0;
-  MODES.SHORTLOG = conf.behaviour.n_write_log < 0;
+  // size to allocate: numCells*(numPointsPerCell+1)
+  grid->Allocate(n_cells * (celltype + 1));
 
+  points->SetNumberOfPoints(n_nodes);
+  for (size_t node = 0; node < n_nodes; node++) {
+    auto n = mesh->hexs.get_node(node);
+    points->SetPoint(node, n.x, n.y, n.z);
+  }
+  grid->SetPoints(points);
+  points->Delete();
 
+  for (size_t cl = 0; cl < n_cells; cl++) {
+    auto cell = mesh->hexs.get_cell(cl);
+    int cell_size = cell.size();
+    vtkIdType ids[cell_size];
+    for (int i = 0; i < cell_size; i++) {
+      ids[i] = cell[i];
+    }
+    grid->InsertNextCell(celltype, cell_size, ids);
+  }
+
+  // TODO: add field data
+  // TODO: is there a way to generalize the function more?
 }
 
 int main() {
   string filename = "in/md.in";
+
+  // run(filename);
+
   femocs::Femocs project(filename);
 
   string cmd1 = "infile";
@@ -168,7 +192,7 @@ int main() {
       "velocity",
   };
 
-  ofstream output_mesh("output_mesh.vtk");
+  TetgenMesh *mesh;
 
   for (int i = 1; i <= n_iterations; ++i) {
     if (n_iterations > 1)
@@ -177,6 +201,27 @@ int main() {
     success = project.import_atoms(infile, add_rnd_noise);
     success += project.run();
 
+    cout << "exporting a mesh" << endl;
+    mesh = project.export_mesh();
+    cout << "Mesh statistics from my program:" << endl
+         << "#hexs=" << mesh->hexs.size() << ", #tets=" << mesh->tets.size()
+         << ", #quads=" << mesh->quads.size() << ", #tris=" << mesh->tris.size()
+         << ", #edges=" << mesh->edges.size()
+         << ", #nodes=" << mesh->nodes.size() << endl;
+
+    cout << "node: " << mesh->nodes[0] << endl;
+    cout << "tet: " << mesh->tets[0] << endl;
+    cout << "quad: " << mesh->quads[0] << endl;
+    cout << "edge: " << mesh->edges[0] << endl;
+    cout << "hexs: " << mesh->hexs[0] << endl;
+
+    mesh->hexs.write("hexs_output.vtk");
+
+    vtkUnstructuredGrid *grid = vtkUnstructuredGrid::New();
+    export_vtk_unstructured_grid(mesh, grid);
+    grid->PrintSelf(cout, vtkIndent(2));
+    grid->Delete();
+
     for (auto label : labels) {
       cout << "exporting " << label << endl;
       project.export_data(output_data, n_atoms, label);
@@ -184,8 +229,6 @@ int main() {
         cout << "\t" << label << "[" << j << "] : " << output_data[j] << endl;
       }
     }
-
-    project.export_mesh(output_mesh);
   }
 
   print_progress("\n> full run of Femocs", success == 0);

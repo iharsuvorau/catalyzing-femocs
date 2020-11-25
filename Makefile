@@ -3,7 +3,7 @@ include femocs/share/makefile.femocs
 HDFLAGS=$(patsubst -I%, -Ifemocs/%, $(FEMOCS_HEADPATH))
 NEW_PATHS=$(patsubst -L%, -Lfemocs/%, $(FEMOCS_LIBPATH))
 VTKFLAGS=-I/usr/include/vtk-6.2
-CMAKE_FLAGS=-DCMAKE_BUILD_TYPE=Release -DLIBCGAL= -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++
+CMAKE_FLAGS=
 
 .PHONY: clean
 

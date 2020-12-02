@@ -17,4 +17,4 @@ clean:
 	rm -r ./build
 
 cmake:
-	mkdir -p build; cd build; cmake ${CMAKE_FLAGS} ..; make
+	mkdir -p build; cp -r femocs/in build; cd build; cmake ${CMAKE_FLAGS} ..; make

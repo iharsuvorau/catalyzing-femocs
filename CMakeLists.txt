@@ -1,71 +1,53 @@
-CMAKE_MINIMUM_REQUIRED (VERSION 2.8.8)
+cmake_minimum_required(VERSION 3.16)
 
-# Setings
+# General Settings
 
-SET(TARGET "CatalystAdaptor")
-SET(CMAKE_CXX_STANDARD 14)
-SET(CMAKE_CXX_STANDARD_REQUIRED ON)
-SET(CMAKE_Fortran_COMPILER gfortran)
-SET(CMAKE_C_COMPILER gcc)
-SET(CMAKE_CXX_COMPILER c++)
-SET(CMAKE_VERBOSE_MAKEFILE off)
+set(TARGET CatalystAdaptor)
+set(CMAKE_CXX_STANDARD 14)
 SET(CMAKE_BUILD_TYPE Release)
+set(FEMOCS_DIR ${CMAKE_SOURCE_DIR}/femocs)
 
-SET(FEMOCS_REPO_PATH ${CMAKE_SOURCE_DIR}/femocs)
-SET(DEAL_II_DIR ${FEMOCS_REPO_PATH}/dealii)
-SET(CGAL_DIR ${FEMOCS_REPO_PATH}/cgal)
-SET(TET_DIR ${FEMOCS_REPO_PATH}/lib)
-SET(GETELEC_DIR ${FEMOCS_REPO_PATH}/GETELEC/lib)
-SET(SLATEC_DIR ${FEMOCS_REPO_PATH}/GETELEC/lib)
-SET(FEMOCS_DIR ${FEMOCS_REPO_PATH}/lib)
-
-SET(TET_PATH ${TET_DIR}/libtet.a)
-SET(GETELEC_PATH ${GETELEC_DIR}/libgetelec.a)
-SET(SLATEC_PATH ${SLATEC_DIR}/libslatec.a)
-SET(FEMOCS_PATH ${FEMOCS_DIR}/libfemocs.a)
-
-PROJECT(${TARGET})
+project(CatalystAdaptor CXX)
 
 # Dependencies
 
-FIND_PACKAGE(deal.II 9.2 REQUIRED
-    HINTS ${DEAL_II_DIR}
-)
-IF (NOT deal.II_FOUND)
-    MESSAGE(FATAL_ERROR "Deal.II not found from " ${DEAL_II_DIR})
-ENDIF()
-
+find_package(deal.II 9.2 REQUIRED HINTS ${FEMOCS_DIR}/dealii)
+if (NOT deal.II_FOUND)
+    message(FATAL_ERROR "Deal.II not found from " ${DEAL_II_DIR})
+endif()
 DEAL_II_INITIALIZE_CACHED_VARIABLES()
 
-ADD_LIBRARY(tet ${TET_DIR}/libtet.a)
-SET_TARGET_PROPERTIES(tet PROPERTIES LINKER_LANGUAGE CXX)
-
-ADD_LIBRARY(getelec ${GETELEC_DIR}/libgetelec.a)
-SET_TARGET_PROPERTIES(getelec PROPERTIES LINKER_LANGUAGE Fortran)
-
-ADD_LIBRARY(slatec ${SLATEC_DIR}/libslatec.a)
-SET_TARGET_PROPERTIES(slatec PROPERTIES LINKER_LANGUAGE C)
-
-ADD_LIBRARY(femocs ${FEMOCS_DIR}/libfemocs.a)
-SET_TARGET_PROPERTIES(femocs PROPERTIES LINKER_LANGUAGE CXX)
+set(CMAKE_LIBRARY_PATH ${FEMOCS_DIR}/lib ${FEMOCS_DIR}/GETELEC/lib ${FEMOCS_DIR}/dealii/lib)
+find_library(FEMOCS_LIB femocs)
+find_library(TET_LIB tet)
+find_library(GETELEC_LIB getelec)
+find_library(SLATEC_LIB slatec)
 
 # Compilation flags
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
-MESSAGE(STATUS "CMAKE_CXX_FLAGS = "${CMAKE_CXX_FLAGS})
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+# remove all flags that control warnings
+string(REGEX REPLACE " -W[A-Za-z0-9-]+" "" DEAL_II_CXX_FLAGS ${DEAL_II_CXX_FLAGS})
+string(REPLACE "-pedantic" "" DEAL_II_CXX_FLAGS ${DEAL_II_CXX_FLAGS})
+# remove optimization level flags
+string(REGEX REPLACE "-O[0-9]" "" DEAL_II_CXX_FLAGS_RELEASE ${DEAL_II_CXX_FLAGS_RELEASE})
+# remove warning about flag not present for f90
+string(REPLACE "-Wno-unused-local-typedefs" "" DEAL_II_CXX_FLAGS_RELEASE ${DEAL_II_CXX_FLAGS_RELEASE})
+set(DEAL_II_CXX_FLAGS "${DEAL_II_CXX_FLAGS} -O3 -w")
 
 # Building
 
-ADD_EXECUTABLE(${TARGET} src/main.cpp)
-DEAL_II_SETUP_TARGET(${TARGET})
+add_executable(${TARGET} src/main.cpp)
 target_include_directories(${TARGET} PRIVATE
-    ${FEMOCS_REPO_PATH}/tetgen
-    ${FEMOCS_REPO_PATH}/include
-    ${FEMOCS_REPO_PATH}/GETELEC/modules
+  ${FEMOCS_DIR}/include
+  ${FEMOCS_DIR}/lib
+  ${FEMOCS_DIR}/dealii/include
+  ${FEMOCS_DIR}/GELTELEC/modules
 )
-TARGET_LINK_LIBRARIES(${TARGET}
-  ${TET_PATH}
-  ${GETELEC_PATH}
-  ${SLATEC_PATH}
-  ${FEMOCS_PATH}
+target_link_libraries(${TARGET}
+  ${FEMOCS_LIB}
+  ${TET_LIB}
+  ${GETELEC_LIB}
+  ${SLATEC_LIB}
 )
+DEAL_II_SETUP_TARGET(${TARGET})

@@ -30,6 +30,7 @@ find_package(VTK REQUIRED HINTS vtk_9.0.1_build
   COMPONENTS 
   CommonCore
   CommonDataModel
+  IOXML
 )
 if (NOT VTK_FOUND)
   message("vtk not found: ${VTK_NOT_FOUND_MESSAGE}")

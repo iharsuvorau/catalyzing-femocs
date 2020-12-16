@@ -9,7 +9,10 @@
 #include <iostream>
 #include <stdlib.h>
 #include <string>
+#include <vtkCellType.h>
+#include <vtkMeta.h>
 #include <vtkUnstructuredGrid.h>
+#include <vtkXMLUnstructuredGridWriter.h>
 
 using namespace std;
 using namespace femocs;
@@ -32,12 +35,14 @@ int main() {
   int n_iterations = 1;
   bool add_rnd_noise = false;
 
-  for (int i = 1; i <= n_iterations; ++i) {
+  for (int iter_i = 1; iter_i <= n_iterations; ++iter_i) {
     if (n_iterations > 1)
-      cout << "\n> iteration " << i << endl;
+      cout << "\n> iteration " << iter_i << endl;
 
     success = project.import_atoms("", add_rnd_noise);
     success += project.run();
+
+    // Mesh data
 
     const double *nodes = NULL;
     const int n_coordinates = 3;
@@ -56,11 +61,38 @@ int main() {
              cells[I + 3]);
     }
 
-    // TetgenMesh *mesh;
-    // vtkUnstructuredGrid *grid = vtkUnstructuredGrid::New();
-    // export_vtk_unstructured_grid(mesh, grid);
-    // grid->PrintSelf(cout, vtkIndent(2));
-    // grid->Delete();
+    // VTK mesh
+
+    double coordinates[n_nodes][n_coordinates];
+    for (int i = 0; i < n_nodes; i++) {
+      for (int j = 0; j < n_coordinates; j++)
+        coordinates[i][j] = nodes[n_coordinates * i + j];
+    }
+    vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+    for (int i = 0; i < n_nodes; i++)
+      points->InsertPoint(i, coordinates[i]);
+
+    vtkIdType cellsIndecies[n_cells][n_nodes_per_cell];
+    for (int i = 0; i < n_cells; i++) {
+      for (int j = 0; j < n_nodes_per_cell; j++)
+        cellsIndecies[i][j] = cells[n_nodes_per_cell * i + j];
+    }
+
+    vtkSmartPointer<vtkUnstructuredGrid> grid =
+        vtkSmartPointer<vtkUnstructuredGrid>::New();
+    grid->Allocate(n_cells);
+    for (int i = 0; i < n_cells; i++)
+      grid->InsertNextCell(VTK_QUAD, n_nodes_per_cell, cellsIndecies[i]);
+    grid->SetPoints(points);
+
+    vtkSmartPointer<vtkXMLUnstructuredGridWriter> writer =
+        vtkSmartPointer<vtkXMLUnstructuredGridWriter>::New();
+    string filename = "vtk-output_iteration-" + to_string(iter_i) + ".vtu";
+    writer->SetFileName(filename.c_str());
+    writer->SetInputData(grid);
+    writer->Write();
+
+    // Field data
 
     // for (auto label : labels) {
     //   cout << "exporting " << label << endl;

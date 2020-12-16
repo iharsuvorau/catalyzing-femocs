@@ -11,17 +11,31 @@ project(CatalystAdaptor CXX)
 
 # Dependencies
 
+# femocs and its dependencies
 find_package(deal.II 9.2 REQUIRED HINTS ${FEMOCS_DIR}/dealii)
 if (NOT deal.II_FOUND)
     message(FATAL_ERROR "Deal.II not found from " ${DEAL_II_DIR})
 endif()
 DEAL_II_INITIALIZE_CACHED_VARIABLES()
-
 set(CMAKE_LIBRARY_PATH ${FEMOCS_DIR}/lib ${FEMOCS_DIR}/GETELEC/lib ${FEMOCS_DIR}/dealii/lib)
 find_library(FEMOCS_LIB femocs)
 find_library(TET_LIB tet)
 find_library(GETELEC_LIB getelec)
 find_library(SLATEC_LIB slatec)
+
+# vtk, version must be >= 8.90.0, otherwise another "old system"
+# config should be used see as an example:
+# https://lorensen.github.io/VTKExamples/site/Cxx/UnstructuredGrid/UGrid/
+find_package(VTK REQUIRED HINTS vtk_9.0.1_build
+  COMPONENTS 
+  CommonCore
+  CommonDataModel
+)
+if (NOT VTK_FOUND)
+  message("vtk not found: ${VTK_NOT_FOUND_MESSAGE}")
+  return ()
+endif()
+message (STATUS "VTK_VERSION: ${VTK_VERSION}")
 
 # Compilation flags
 
@@ -49,5 +63,12 @@ target_link_libraries(${TARGET}
   ${TET_LIB}
   ${GETELEC_LIB}
   ${SLATEC_LIB}
+  ${VTK_LIBRARIES}
 )
 DEAL_II_SETUP_TARGET(${TARGET})
+
+ # vtk_module_autoinit is needed
+vtk_module_autoinit(
+  TARGETS ${TARGET}
+  MODULES ${VTK_LIBRARIES}
+)

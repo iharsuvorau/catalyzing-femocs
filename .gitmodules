@@ -1,3 +1,6 @@
 [submodule "femocs"]
 	path = femocs
 	url = https://gitlab.com/veskem/femocs.git
+[submodule "vtk"]
+	path = vtk
+	url = https://gitlab.kitware.com/vtk/vtk.git

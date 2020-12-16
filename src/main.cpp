@@ -4,9 +4,12 @@
 #include "GeneralProject.h"
 #include "Macros.h"
 #include "TetgenMesh.h"
+#include <cstdio>
+#include <cstdlib>
+#include <iostream>
 #include <stdlib.h>
-#include <vector>
-// #include <vtkUnstructuredGrid.h>
+#include <string>
+#include <vtkUnstructuredGrid.h>
 
 using namespace std;
 using namespace femocs;
@@ -24,36 +27,6 @@ int main() {
 
   femocs::Femocs project(filename);
 
-  vector<string> labels = {
-      // "vec",
-      // "vec_norm",
-      // "scalar",
-      // "potential",
-      // "temperature",
-      // "rho",
-      // "rho_norm",
-      // "kin_energy",
-      // "pot_energy",
-      // "pair_potential",
-      // "parcas_force",
-      // "charge_force",
-      // "force_norm",
-      // "charge",
-      // "charge_density",
-      // "parcas_velocity",
-      // "velocity_norm",
-      // "area",
-      //  "atom_type"
-
-      //// scalar
-      // "heat",
-      // "elfield_norm",
-
-      //// 3D vector
-      // "elfield",
-      // "force",
-      "velocity",
-  };
   // double output_data[n_atoms * 3] = {0};
   int success = 0;
   int n_iterations = 1;

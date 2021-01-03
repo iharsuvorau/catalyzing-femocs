@@ -4,7 +4,7 @@ FEMOCS_LIBPATH=-L femocs/lib -L femocs/GETELEC/lib -L femocs/dealii/lib
 
 FEMOCS_LIB=-lfemocs -ltet -ldeal_II -lgetelec -lslatec -fopenmp -ltbb -llapack -lz -lm -lstdc++ -lgfortran 
 
-VTKFLAGS=-I/usr/include/vtk-6.2
+VTKFLAGS=-Ivtk_9.0.1_build
 
 CMAKE_FLAGS=
 

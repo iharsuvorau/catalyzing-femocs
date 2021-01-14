@@ -4,3 +4,6 @@
 [submodule "vtk"]
 	path = vtk
 	url = https://gitlab.kitware.com/vtk/vtk.git
+[submodule "paraview"]
+	path = paraview
+	url = https://gitlab.kitware.com/paraview/paraview.git

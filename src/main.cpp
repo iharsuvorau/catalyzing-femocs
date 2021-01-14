@@ -60,7 +60,7 @@ int main() {
 
     const int *cells = NULL;
     const int n_nodes_per_cell = 4;
-    const int n_cells = project.export_data(&cells, "quadrangles");
+    const int n_cells = project.export_data(&cells, "quadrangles"); // export hexahedron
     // for (int i = 0; i < n_cells; i++) {
     //   int I = n_nodes_per_cell * i;
     //   printf("%d %d %d %d\n", cells[I], cells[I + 1], cells[I + 2],
@@ -71,7 +71,7 @@ int main() {
 
     double elfield_data[n_nodes] = {0};
     double temperature_data[n_nodes] = {0};
-    project.export_data(elfield_data, n_nodes, "elfield");
+    project.export_data(elfield_data, n_nodes, "elfield_norm");
     project.export_data(temperature_data, n_nodes, "temperature");
 
     vtkSmartPointer<vtkDoubleArray> elfield =

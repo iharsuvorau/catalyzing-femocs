@@ -15,7 +15,7 @@ project(CatalystAdaptor LANGUAGES CXX C)
 find_package(deal.II 9.2 REQUIRED HINTS ${FEMOCS_DIR}/dealii)
 if (NOT deal.II_FOUND)
     message(FATAL_ERROR "Deal.II not found from " ${DEAL_II_DIR})
-endif()
+endif ()
 DEAL_II_INITIALIZE_CACHED_VARIABLES()
 set(CMAKE_LIBRARY_PATH ${FEMOCS_DIR}/lib ${FEMOCS_DIR}/GETELEC/lib ${FEMOCS_DIR}/dealii/lib)
 find_library(FEMOCS_LIB femocs)
@@ -38,28 +38,40 @@ find_library(SLATEC_LIB slatec)
 # endif()
 # message (STATUS "VTK_VERSION: ${VTK_VERSION}")
 
-# paraview catalyst
+# ParaView Catalyst
 find_package(MPI COMPONENTS C REQUIRED)
 if (NOT MPI_FOUND)
-  message("MPI not found: ${MPI_NOT_FOUND_MESSAGE}")
-endif()
+    message("MPI not found: ${MPI_NOT_FOUND_MESSAGE}")
+endif ()
 include_directories(SYSTEM ${MPI_INCLUDE_PATH})
 
 find_package(ParaView 5.8 REQUIRED
-  HINTS paraview_build/
-  #COMPONENTS vtkPVPythonCatalyst
-  )
+        HINTS paraview_build/
+        #COMPONENTS vtkPVPythonCatalyst
+        )
+
+# Adaptor library
 add_library(Adaptor src/Adaptor.cpp)
+target_include_directories(Adaptor PRIVATE
+        ${FEMOCS_DIR}/include
+        ${FEMOCS_DIR}/lib
+        ${FEMOCS_DIR}/dealii/include
+        ${FEMOCS_DIR}/GELTELEC/modules
+        )
 target_link_libraries(Adaptor
-  INTERFACE
-    VTK::PythonUsed
-  PRIVATE
-    ParaView::PythonCatalyst
-    VTK::CommonDataModel
-    ${MPI_C_LIBRARIES}
-  #vtkPVPythonCatalyst
-  #vtkParallelMPI
-)
+        INTERFACE
+        VTK::PythonUsed
+        PRIVATE
+        ParaView::PythonCatalyst
+        VTK::CommonDataModel
+        ${MPI_C_LIBRARIES}
+        ${FEMOCS_LIB}
+        ${TET_LIB}
+        ${GETELEC_LIB}
+        ${SLATEC_LIB}
+        #vtkPVPythonCatalyst
+        #vtkParallelMPI
+        )
 add_definitions("-DUSE_CATALYST")
 
 # Compilation flags
@@ -78,26 +90,26 @@ set(DEAL_II_CXX_FLAGS "${DEAL_II_CXX_FLAGS} -O3 -w")
 
 add_executable(${TARGET} src/main.cpp)
 target_include_directories(${TARGET} PRIVATE
-  ${FEMOCS_DIR}/include
-  ${FEMOCS_DIR}/lib
-  ${FEMOCS_DIR}/dealii/include
-  ${FEMOCS_DIR}/GELTELEC/modules
-)
+        ${FEMOCS_DIR}/include
+        ${FEMOCS_DIR}/lib
+        ${FEMOCS_DIR}/dealii/include
+        ${FEMOCS_DIR}/GELTELEC/modules
+        )
 target_link_libraries(${TARGET}
-  ${FEMOCS_LIB}
-  ${TET_LIB}
-  ${GETELEC_LIB}
-  ${SLATEC_LIB}
-  ${VTK_LIBRARIES}
-  Adaptor
-)
+        ${FEMOCS_LIB}
+        ${TET_LIB}
+        ${GETELEC_LIB}
+        ${SLATEC_LIB}
+        ${VTK_LIBRARIES}
+        Adaptor
+        )
 DEAL_II_SETUP_TARGET(${TARGET})
 #3include(vtkModuleMacros)
 #include(vtkMPI)
 #vtk_mpi_link(${TARGET})
 
- # vtk_module_autoinit is needed
+# vtk_module_autoinit is needed
 vtk_module_autoinit(
-  TARGETS ${TARGET}
-  MODULES ${VTK_LIBRARIES}
+        TARGETS ${TARGET}
+        MODULES ${VTK_LIBRARIES}
 )

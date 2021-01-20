@@ -15,7 +15,6 @@
 #include "Adaptor.h"
 
 using namespace std;
-//using namespace femocs;
 
 void print_progress(const string &message, const bool contition) {
     cout << message << ":  ";

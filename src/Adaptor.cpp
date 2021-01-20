@@ -20,6 +20,8 @@ namespace Adaptor {
     vtkSmartPointer <vtkUnstructuredGrid> grid;
 
     void Initialize(int numScripts, char *scripts[]) {
+        printf("Adaptor::Initialize has been called\n");
+
         if (grid == NULL) {
             grid = vtkSmartPointer<vtkUnstructuredGrid>::New();
         } else {
@@ -41,6 +43,7 @@ namespace Adaptor {
     }
 
     void Finalize() {
+        printf("Adaptor::Finalize has been called\n");
         if (Processor) {
             Processor->Delete();
             Processor = NULL;
@@ -48,19 +51,14 @@ namespace Adaptor {
     }
 
     void CoProcess(femocs::Femocs &project, double time, unsigned int timeStep, bool lastTimeStep) {
-        vtkNew <vtkCPDataDescription> dataDescription;
-        dataDescription->AddInput("input");
-        dataDescription->SetTimeData(time, timeStep);
-
-        if (lastTimeStep == true) {
-            dataDescription->ForceOutputOn();
-        }
+        printf("Adaptor::CoProcess has been called\n");
 
         // Mesh data
 
         const double *nodes = NULL;
         const int n_coordinates = 3;
         const int n_nodes = project.export_data(&nodes, "nodes");
+        printf("nodes: %.3d\n", n_nodes);
         // for (int i = 0; i < n_nodes; i++) {
         //   int I = n_coordinates * i;
         //   printf("%.3f %.3f %.3f\n", nodes[I], nodes[I + 1], nodes[I + 2]);
@@ -69,6 +67,7 @@ namespace Adaptor {
         const int *cells = NULL;
         const int n_nodes_per_cell = 4;
         const int n_cells = project.export_data(&cells, "quadrangles"); // export hexahedron
+        printf("cells: %.3d\n", n_cells);
         // for (int i = 0; i < n_cells; i++) {
         //   int I = n_nodes_per_cell * i;
         //   printf("%d %d %d %d\n", cells[I], cells[I + 1], cells[I + 2],
@@ -79,12 +78,12 @@ namespace Adaptor {
 
         double elfield_data[n_nodes] = {0};
         double temperature_data[n_nodes] = {0};
-        project.export_data(elfield_data, n_nodes, "elfield_norm");
+        project.export_data(elfield_data, n_nodes, "elfield");
         project.export_data(temperature_data, n_nodes, "temperature");
 
         vtkSmartPointer <vtkDoubleArray> elfield =
                 vtkSmartPointer<vtkDoubleArray>::New();
-        elfield->SetName("elfield_norm");
+        elfield->SetName("elfield");
         for (int i = 0; i < n_nodes; i++)
             elfield->InsertNextValue(elfield_data[i]);
 
@@ -123,8 +122,18 @@ namespace Adaptor {
             grid->InsertNextCell(VTK_QUAD, n_nodes_per_cell, cellsIndicies[i]);
         grid->SetPoints(points);
         grid->SetFieldData(pointFieldData);
+        grid->Squeeze();
 
-        // passing to Catalyst
+        // passing data to Catalyst
+
+        vtkSmartPointer <vtkCPDataDescription> dataDescription = vtkSmartPointer<vtkCPDataDescription>::New();
+        dataDescription->AddInput("input");
+        dataDescription->SetTimeData(time, timeStep);
+
+        if (lastTimeStep) {
+            dataDescription->ForceOutputOn();
+            printf("last time step\n");
+        }
 
         if (Processor->RequestDataDescription(dataDescription.GetPointer()) != 0) {
             vtkCPInputDataDescription *idd = dataDescription->GetInputDescriptionByName("input");

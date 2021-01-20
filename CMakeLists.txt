@@ -45,10 +45,8 @@ if (NOT MPI_FOUND)
 endif ()
 include_directories(SYSTEM ${MPI_INCLUDE_PATH})
 
-find_package(ParaView 5.8 REQUIRED
-        HINTS paraview_build/
-        #COMPONENTS vtkPVPythonCatalyst
-        )
+find_package(ParaView 5.8 REQUIRED HINTS paraview_build/)
+message("VTK version: ${VTK_VERSION}")
 
 # Adaptor library
 add_library(Adaptor src/Adaptor.cpp)

@@ -32,7 +32,7 @@ void print_field(const string label, const int n_nodes, double *field_data) {
     }
 }
 
-int main() {
+int main(int argc, char *argv[]) {
     string filename = "in/md.in";
 
     femocs::Femocs project(filename);
@@ -41,7 +41,7 @@ int main() {
     int n_iterations = 2;
     bool add_rnd_noise = true;
 
-    Adaptor::Initialize(0, NULL);
+    Adaptor::Initialize(argc - 1, argv + 1);
 
     for (int iter_i = 1; iter_i <= n_iterations; ++iter_i) {
         if (n_iterations > 1)

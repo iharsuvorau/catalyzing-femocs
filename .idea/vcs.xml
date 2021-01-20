@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/femocs" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/femocs/GETELEC" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/paraview" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/paraview/ThirdParty/IceT/vtkicet" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/paraview/ThirdParty/QtTesting/vtkqttesting" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/paraview/ThirdParty/catalyst/vtkcatalyst/catalyst" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/paraview/Utilities/VisItBridge" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/paraview/VTK" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/paraview/VTK/ThirdParty/vtkm/vtkvtkm/vtk-m" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/vtk" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/vtk/ThirdParty/vtkm/vtkvtkm/vtk-m" vcs="Git" />
+  </component>
+</project>

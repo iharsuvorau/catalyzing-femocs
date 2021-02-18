@@ -19,7 +19,7 @@ namespace CatalystAdaptor {
     vtkCPProcessor *Processor = NULL;
     vtkSmartPointer <vtkUnstructuredGrid> grid;
 
-    void Initialize(int numScripts, char *scripts[]) {
+    void Initialize(const char *path) {
         printf("CatalystAdaptor::Initialize has been called\n");
 
         if (grid == NULL) {
@@ -35,11 +35,9 @@ namespace CatalystAdaptor {
             Processor->RemoveAllPipelines();
         }
 
-        for (int i = 0; i < numScripts; i++) {
-            vtkNew <vtkCPPythonScriptPipeline> pipeline;
-            pipeline->Initialize(scripts[i]);
-            Processor->AddPipeline(pipeline.GetPointer());
-        }
+        vtkNew <vtkCPPythonScriptPipeline> pipeline;
+        pipeline->Initialize(path);
+        Processor->AddPipeline(pipeline.GetPointer());
     }
 
     void Finalize() {

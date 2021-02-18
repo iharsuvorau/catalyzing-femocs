@@ -2,12 +2,12 @@ cmake_minimum_required(VERSION 3.16)
 
 # General Settings
 
-set(TARGET CatalystAdaptor)
+set(TARGET Demo)
 set(CMAKE_CXX_STANDARD 14)
 SET(CMAKE_BUILD_TYPE Release)
 set(FEMOCS_DIR ${CMAKE_SOURCE_DIR}/femocs)
 
-project(CatalystAdaptor LANGUAGES CXX C)
+project(CatalyzingFemocs LANGUAGES CXX C)
 
 # Dependencies
 
@@ -48,15 +48,14 @@ include_directories(SYSTEM ${MPI_INCLUDE_PATH})
 find_package(ParaView 5.8 REQUIRED HINTS paraview_build/)
 message("VTK version: ${VTK_VERSION}")
 
-# Adaptor library
-add_library(Adaptor src/Adaptor.cpp)
-target_include_directories(Adaptor PRIVATE
+# CatalystAdaptor library
+add_library(CatalystAdaptor src/CatalystAdaptor.cpp)
+target_include_directories(CatalystAdaptor PRIVATE
         ${FEMOCS_DIR}/include
         ${FEMOCS_DIR}/lib
         ${FEMOCS_DIR}/dealii/include
-        ${FEMOCS_DIR}/GELTELEC/modules
-        )
-target_link_libraries(Adaptor
+        ${FEMOCS_DIR}/GELTELEC/modules)
+target_link_libraries(CatalystAdaptor
         INTERFACE
         VTK::PythonUsed
         PRIVATE
@@ -66,10 +65,7 @@ target_link_libraries(Adaptor
         ${FEMOCS_LIB}
         ${TET_LIB}
         ${GETELEC_LIB}
-        ${SLATEC_LIB}
-        #vtkPVPythonCatalyst
-        #vtkParallelMPI
-        )
+        ${SLATEC_LIB})
 add_definitions("-DUSE_CATALYST")
 
 # Compilation flags
@@ -91,16 +87,14 @@ target_include_directories(${TARGET} PRIVATE
         ${FEMOCS_DIR}/include
         ${FEMOCS_DIR}/lib
         ${FEMOCS_DIR}/dealii/include
-        ${FEMOCS_DIR}/GELTELEC/modules
-        )
+        ${FEMOCS_DIR}/GELTELEC/modules)
 target_link_libraries(${TARGET}
         ${FEMOCS_LIB}
         ${TET_LIB}
         ${GETELEC_LIB}
         ${SLATEC_LIB}
         ${VTK_LIBRARIES}
-        Adaptor
-        )
+        CatalystAdaptor)
 DEAL_II_SETUP_TARGET(${TARGET})
 #3include(vtkModuleMacros)
 #include(vtkMPI)
@@ -109,5 +103,4 @@ DEAL_II_SETUP_TARGET(${TARGET})
 # vtk_module_autoinit is needed
 vtk_module_autoinit(
         TARGETS ${TARGET}
-        MODULES ${VTK_LIBRARIES}
-)
+        MODULES ${VTK_LIBRARIES})

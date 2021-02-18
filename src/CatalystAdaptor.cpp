@@ -12,15 +12,15 @@
 #include <vtkPointData.h>
 #include <vtkPoints.h>
 #include <vtkUnstructuredGrid.h>
-#include "Adaptor.h"
+#include "CatalystAdaptor.h"
 #include "Femocs.h"
 
-namespace Adaptor {
+namespace CatalystAdaptor {
     vtkCPProcessor *Processor = NULL;
     vtkSmartPointer <vtkUnstructuredGrid> grid;
 
     void Initialize(int numScripts, char *scripts[]) {
-        printf("Adaptor::Initialize has been called\n");
+        printf("CatalystAdaptor::Initialize has been called\n");
 
         if (grid == NULL) {
             grid = vtkSmartPointer<vtkUnstructuredGrid>::New();
@@ -43,7 +43,7 @@ namespace Adaptor {
     }
 
     void Finalize() {
-        printf("Adaptor::Finalize has been called\n");
+        printf("CatalystAdaptor::Finalize has been called\n");
         if (Processor) {
             Processor->Delete();
             Processor = NULL;
@@ -51,7 +51,7 @@ namespace Adaptor {
     }
 
     void CoProcess(femocs::Femocs &project, double time, unsigned int timeStep, bool lastTimeStep) {
-        printf("Adaptor::CoProcess has been called\n");
+        printf("CatalystAdaptor::CoProcess has been called\n");
 
         // Mesh data
 

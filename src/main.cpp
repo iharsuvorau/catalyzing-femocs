@@ -12,7 +12,7 @@
 #include <vtkPointData.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkXMLUnstructuredGridWriter.h>
-#include "Adaptor.h"
+#include "CatalystAdaptor.h"
 
 using namespace std;
 
@@ -38,10 +38,10 @@ int main(int argc, char *argv[]) {
     femocs::Femocs project(filename);
 
     int success = 0;
-    int n_iterations = 2;
+    int n_iterations = 100;
     bool add_rnd_noise = true;
 
-    Adaptor::Initialize(argc - 1, argv + 1);
+    CatalystAdaptor::Initialize(argc - 1, argv + 1);
 
     for (int iter_i = 1; iter_i <= n_iterations; ++iter_i) {
         if (n_iterations > 1)
@@ -50,10 +50,10 @@ int main(int argc, char *argv[]) {
         success = project.import_atoms("", add_rnd_noise);
         success += project.run();
 
-        Adaptor::CoProcess(project, iter_i, iter_i, iter_i == n_iterations);
+        CatalystAdaptor::CoProcess(project, iter_i, iter_i, iter_i == n_iterations);
     }
 
-    Adaptor::Finalize();
+    CatalystAdaptor::Finalize();
 
     print_progress("\n> full run of Femocs", success == 0);
     return 0;

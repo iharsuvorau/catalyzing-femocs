@@ -48,7 +48,7 @@ namespace CatalystAdaptor {
         }
     }
 
-    void CoProcess(femocs::Femocs &project, double time, unsigned int timeStep, bool lastTimeStep) {
+    void CoProcess(femocs::Femocs &project, const double time, const unsigned int timeStep, const bool lastTimeStep) {
         printf("CatalystAdaptor::CoProcess has been called\n");
 
         // Mesh data
@@ -130,7 +130,6 @@ namespace CatalystAdaptor {
 
         if (lastTimeStep) {
             dataDescription->ForceOutputOn();
-            printf("last time step\n");
         }
 
         if (Processor->RequestDataDescription(dataDescription.GetPointer()) != 0) {

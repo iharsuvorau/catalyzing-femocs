@@ -9,5 +9,5 @@ namespace CatalystAdaptor {
 
     void Finalize();
 
-    void CoProcess(femocs::Femocs &project, double time, unsigned int timeStep, bool lastTimeStep);
+    void CoProcess(femocs::Femocs &project, const double time, const unsigned int timeStep, const bool lastTimeStep);
 }

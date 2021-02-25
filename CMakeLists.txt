@@ -21,7 +21,6 @@ find_library(FEMOCS_LIB femocs)
 find_library(TET_LIB tet)
 find_library(GETELEC_LIB getelec)
 find_library(SLATEC_LIB slatec)
-find_library(PETSC_LIB petsc)
 
 # ParaView Catalyst
 find_package(MPI COMPONENTS C REQUIRED)

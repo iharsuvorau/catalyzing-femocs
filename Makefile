@@ -1,9 +1,26 @@
 .PHONY: clean
 
+# default values, can be overwritten through command line, e.g. "make BUILD_DIR=foobar test"
+BUILD_DIR = build
+DEAL_II_DIR = femocs/dealii/lib/cmake/deal.II
+PARAVIEW_DIR = paraview_build
+FEMOCS_DIR = femocs
+CMAKE_PREFIX_PATH = "femocs/lib;femocs/GETELEC/lib"
+
 all: cmake
 
 clean:
-	rm -r ./build
+	@rm -r ./build
+
+test:
+	@echo $(BUILD_DIR)
 
 cmake:
-	mkdir -p build; cp -r femocs/in build; cd build; cmake ..; make
+	@mkdir -p $(BUILD_DIR); \
+	cmake -Ddeal.II_DIR=$(DEAL_II_DIR) \
+		  -DParaView_DIR=$(PARAVIEW_DIR) \
+		  -DFEMOCS_DIR=$(FEMOCS_DIR) \
+		  -DCMAKE_PREFIX_PATH=$(CMAKE_PREFIX_PATH) \
+		  -S . -B $(BUILD_DIR);
+	cmake --build $(BUILD_DIR)
+

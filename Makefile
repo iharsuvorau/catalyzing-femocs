@@ -2,10 +2,10 @@
 
 # default values, can be overwritten through command line, e.g. "make BUILD_DIR=foobar test"
 BUILD_DIR = build
-DEAL_II_DIR = femocs/dealii/lib/cmake/deal.II
-PARAVIEW_DIR = paraview_build
 FEMOCS_DIR = femocs
-CMAKE_PREFIX_PATH = "femocs/lib;femocs/GETELEC/lib"
+PARAVIEW_DIR = paraview_build
+DEAL_II_DIR = $(FEMOCS_DIR)/dealii/lib/cmake/deal.II
+CMAKE_PREFIX_PATH = "$(FEMOCS_DIR)/lib;$(FEMOCS_DIR)/GETELEC/lib"
 
 all: cmake
 

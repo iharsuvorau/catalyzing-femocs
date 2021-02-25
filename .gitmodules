@@ -1,6 +1,0 @@
-[submodule "femocs"]
-	path = femocs
-	url = https://gitlab.com/veskem/femocs.git
-[submodule "paraview"]
-	path = paraview
-	url = https://gitlab.kitware.com/paraview/paraview.git

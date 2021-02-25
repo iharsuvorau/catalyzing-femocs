@@ -1,10 +1,5 @@
 build
-*.log
-useful_output
 .gdb_history
 .vscode
-dealii*
-femocs_master
-vtk_9.0.1_build
-.DS_Store
 .idea
+.DS_Store

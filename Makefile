@@ -20,6 +20,7 @@ cmake:
 	@echo "ParaView at" $(PARAVIEW_DIR)
 	@echo "Deal.II at" $(DEAL_II_DIR)
 	@mkdir -p $(BUILD_DIR)
+	@cp -r in $(BUILD_DIR)
 	cmake -Ddeal.II_DIR=$(DEAL_II_DIR) \
 		  -DParaView_DIR=$(PARAVIEW_DIR) \
 		  -DFEMOCS_DIR=$(FEMOCS_DIR) \

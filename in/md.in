@@ -1,0 +1,38 @@
+infile = in/flat.ckx
+write_period = 0.1
+clear_output = true
+femocs_verbose_mode = verbose  # enable or disable the verbose mode
+
+latconst = 8.57
+coarse_factor = 0.1 2 0        # coarsening factor; bigger number gives coarser surface; 1st is substrate, 2nd is shank, 3rd is apex
+smooth_steps = 3               # number of surface mesh smoothing iterations
+interpolation_rank = 2
+distance_tol = 0
+#element_volume = 1000         # [Angstrom^3]
+mesh_quality = 1.8
+
+charge_smooth_factor = 1.0
+radius = 20.0
+box_height = 15
+box_width = 15
+bulk_height = 5.0
+
+clean_surface = false
+femocs_periodic = false
+
+force_mode = none
+heat_mode = transient
+field_mode = transient
+
+elfield  = -0.7  # Max value of applied elctric field (V/Angstrom)
+Vappl = 100      # Applied voltage in case of anode_BC == dirichlet
+anode_BC = dirichlet
+
+work_function = 4.5
+emitter_blunt = true
+emitter_cold = true
+pic_periodic = true
+pic_collide_ee = true
+pic_dtmax = 0.5                 #[fs]
+md_timestep = 10                #[fs]
+electron_weight = 0.0002

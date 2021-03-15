@@ -21,6 +21,7 @@ find_library(FEMOCS_LIB femocs)
 find_library(TET_LIB tet)
 find_library(GETELEC_LIB getelec)
 find_library(SLATEC_LIB slatec)
+find_library(PETSC_LIB petsc /usr/lib/petscdir/petsc3.12/x86_64-linux-gnu-real/lib)
 
 # ParaView Catalyst
 find_package(MPI COMPONENTS C REQUIRED)
@@ -38,7 +39,8 @@ target_include_directories(CatalystAdaptor PRIVATE
         ${FEMOCS_DIR}/include
         ${FEMOCS_DIR}/lib
         ${FEMOCS_DIR}/dealii/include
-        ${FEMOCS_DIR}/GELTELEC/modules)
+        ${FEMOCS_DIR}/GELTELEC/modules
+        /usr/lib/petscdir/petsc3.12/x86_64-linux-gnu-real/include)
 target_link_libraries(CatalystAdaptor
         INTERFACE
         VTK::PythonUsed
@@ -49,7 +51,8 @@ target_link_libraries(CatalystAdaptor
         ${FEMOCS_LIB}
         ${TET_LIB}
         ${GETELEC_LIB}
-        ${SLATEC_LIB})
+        ${SLATEC_LIB}
+        ${PETSC_LIB})
 add_definitions("-DUSE_CATALYST")
 
 # Compilation flags

@@ -34,7 +34,7 @@ message("ParaView version: ${ParaView_VERSION}")
 message("VTK version: ${VTK_VERSION}")
 
 # CatalystAdaptor library
-add_library(CatalystAdaptor src/CatalystAdaptor.cpp)
+add_library(CatalystAdaptor SHARED src/CatalystAdaptor.cpp)
 target_include_directories(CatalystAdaptor PRIVATE
         ${FEMOCS_DIR}/include
         ${FEMOCS_DIR}/lib
@@ -48,11 +48,7 @@ target_link_libraries(CatalystAdaptor
         ParaView::PythonCatalyst
         VTK::CommonDataModel
         ${MPI_C_LIBRARIES}
-        ${FEMOCS_LIB}
-        ${TET_LIB}
-        ${GETELEC_LIB}
-        ${SLATEC_LIB}
-        ${PETSC_LIB})
+        ${FEMOCS_LIB})
 add_definitions("-DUSE_CATALYST")
 
 # Compilation flags

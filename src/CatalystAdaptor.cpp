@@ -55,7 +55,7 @@ namespace CatalystAdaptor {
 
         const double *nodes = NULL;
         const int n_coordinates = 3;
-        const int n_nodes = project.export_data(&nodes, "nodes");
+        const int n_nodes = project.export_data(&nodes, "nodes"); // TODO: make a parameter
         printf("nodes: %.3d\n", n_nodes);
         // for (int i = 0; i < n_nodes; i++) {
         //   int I = n_coordinates * i;
@@ -64,7 +64,7 @@ namespace CatalystAdaptor {
 
         const int *cells = NULL;
         const int n_nodes_per_cell = 4;
-        const int n_cells = project.export_data(&cells, "quadrangles"); // export hexahedron
+        const int n_cells = project.export_data(&cells, "quadrangles"); // export hexahedron // TODO: make a parameter
         printf("cells: %.3d\n", n_cells);
         // for (int i = 0; i < n_cells; i++) {
         //   int I = n_nodes_per_cell * i;
@@ -76,8 +76,8 @@ namespace CatalystAdaptor {
 
         double elfield_data[n_nodes] = {0};
         double temperature_data[n_nodes] = {0};
-        project.export_data(elfield_data, n_nodes, "elfield");
-        project.export_data(temperature_data, n_nodes, "temperature");
+//        project.export_data(elfield_data, n_nodes, "elfield"); // TODO: make a parameter // NOTE: causes error in lammps fix
+        project.export_data(temperature_data, n_nodes, "temperature"); // TODO: make a parameter
 
         vtkSmartPointer <vtkDoubleArray> elfield =
                 vtkSmartPointer<vtkDoubleArray>::New();

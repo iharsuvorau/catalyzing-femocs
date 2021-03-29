@@ -80,16 +80,16 @@ namespace CatalystAdaptor {
         double field_data[n_nodes] = {0};
         project.export_data(field_data, n_nodes, field_label_g);
 
-        vtkSmartPointer <vtkDoubleArray> field_data =
+        vtkSmartPointer <vtkDoubleArray> field =
                 vtkSmartPointer<vtkDoubleArray>::New();
-        field_data->SetName(field_label_g);
+        field->SetName(field_label_g);
         for (int i = 0; i < n_nodes; i++)
-            field_data->InsertNextValue(field_data[i]);
+            field->InsertNextValue(field_data[i]);
 
         vtkSmartPointer <vtkPointData> pointFieldData =
                 vtkSmartPointer<vtkPointData>::New();
 //        pointFieldData->AddArray(elfield);
-        pointFieldData->AddArray(field_data);
+        pointFieldData->AddArray(field);
 
         // making VTK points and cells
 

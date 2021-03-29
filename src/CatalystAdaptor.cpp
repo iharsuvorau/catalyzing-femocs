@@ -18,8 +18,8 @@
 namespace CatalystAdaptor {
     vtkCPProcessor *processor = NULL;
     vtkSmartPointer <vtkUnstructuredGrid> grid;
-    char *cell_type_g;
-    char *field_label_g;
+    const char *cell_type_g;
+    const char *field_label_g;
 
     void Initialize(const char *path, const char *cell_type, const char *field_label) {
         printf("CatalystAdaptor::Initialize has been called\n");

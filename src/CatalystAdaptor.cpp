@@ -16,10 +16,12 @@
 #include "Femocs.h"
 
 namespace CatalystAdaptor {
-    vtkCPProcessor *Processor = NULL;
+    vtkCPProcessor *processor = NULL;
     vtkSmartPointer <vtkUnstructuredGrid> grid;
+    char *cell_type_g;
+    char *field_label_g;
 
-    void Initialize(const char *path) {
+    void Initialize(const char *path, const char *cell_type, const char *field_label) {
         printf("CatalystAdaptor::Initialize has been called\n");
 
         if (grid == NULL) {
@@ -28,23 +30,26 @@ namespace CatalystAdaptor {
             grid->Initialize();
         }
 
-        if (Processor == NULL) {
-            Processor = vtkCPProcessor::New();
-            Processor->Initialize();
+        if (processor == NULL) {
+            processor = vtkCPProcessor::New();
+            processor->Initialize();
         } else {
-            Processor->RemoveAllPipelines();
+            processor->RemoveAllPipelines();
         }
 
         vtkNew <vtkCPPythonScriptPipeline> pipeline;
         pipeline->Initialize(path);
-        Processor->AddPipeline(pipeline.GetPointer());
+        processor->AddPipeline(pipeline.GetPointer());
+
+        cell_type_g = cell_type;
+        field_label_g = field_label;
     }
 
     void Finalize() {
         printf("CatalystAdaptor::Finalize has been called\n");
-        if (Processor) {
-            Processor->Delete();
-            Processor = NULL;
+        if (processor) {
+            processor->Delete();
+            processor = NULL;
         }
     }
 
@@ -57,44 +62,34 @@ namespace CatalystAdaptor {
         const int n_coordinates = 3;
         const int n_nodes = project.export_data(&nodes, "nodes"); // TODO: make a parameter
         printf("nodes: %.3d\n", n_nodes);
-        // for (int i = 0; i < n_nodes; i++) {
-        //   int I = n_coordinates * i;
-        //   printf("%.3f %.3f %.3f\n", nodes[I], nodes[I + 1], nodes[I + 2]);
-        // }
 
         const int *cells = NULL;
         const int n_nodes_per_cell = 4;
-        const int n_cells = project.export_data(&cells, "quadrangles"); // export hexahedron // TODO: make a parameter
+        const int n_cells = project.export_data(&cells, cell_type_g); // export hexahedron, quadrangles
         printf("cells: %.3d\n", n_cells);
-        // for (int i = 0; i < n_cells; i++) {
-        //   int I = n_nodes_per_cell * i;
-        //   printf("%d %d %d %d\n", cells[I], cells[I + 1], cells[I + 2],
-        //          cells[I + 3]);
-        // }
 
         // Field data
 
-        double elfield_data[n_nodes] = {0};
-        double temperature_data[n_nodes] = {0};
-//        project.export_data(elfield_data, n_nodes, "elfield"); // TODO: make a parameter // NOTE: causes error in lammps fix
-        project.export_data(temperature_data, n_nodes, "temperature"); // TODO: make a parameter
+//        double elfield_data[n_nodes] = {0};
+//        vtkSmartPointer <vtkDoubleArray> elfield =
+//                vtkSmartPointer<vtkDoubleArray>::New();
+//        elfield->SetName("elfield");
+//        for (int i = 0; i < n_nodes; i++)
+//            elfield->InsertNextValue(elfield_data[i]);
 
-        vtkSmartPointer <vtkDoubleArray> elfield =
-                vtkSmartPointer<vtkDoubleArray>::New();
-        elfield->SetName("elfield");
-        for (int i = 0; i < n_nodes; i++)
-            elfield->InsertNextValue(elfield_data[i]);
+        double field_data[n_nodes] = {0};
+        project.export_data(field_data, n_nodes, field_label_g);
 
-        vtkSmartPointer <vtkDoubleArray> temperature =
+        vtkSmartPointer <vtkDoubleArray> field_data =
                 vtkSmartPointer<vtkDoubleArray>::New();
-        temperature->SetName("temperature");
+        field_data->SetName(field_label_g);
         for (int i = 0; i < n_nodes; i++)
-            temperature->InsertNextValue(temperature_data[i]);
+            field_data->InsertNextValue(field_data[i]);
 
         vtkSmartPointer <vtkPointData> pointFieldData =
                 vtkSmartPointer<vtkPointData>::New();
-        pointFieldData->AddArray(elfield);
-        pointFieldData->AddArray(temperature);
+//        pointFieldData->AddArray(elfield);
+        pointFieldData->AddArray(field_data);
 
         // making VTK points and cells
 
@@ -132,10 +127,10 @@ namespace CatalystAdaptor {
             dataDescription->ForceOutputOn();
         }
 
-        if (Processor->RequestDataDescription(dataDescription.GetPointer()) != 0) {
+        if (processor->RequestDataDescription(dataDescription.GetPointer()) != 0) {
             vtkCPInputDataDescription *idd = dataDescription->GetInputDescriptionByName("input");
             idd->SetGrid(grid);
-            Processor->CoProcess(dataDescription.GetPointer());
+            processor->CoProcess(dataDescription.GetPointer());
         }
 
         // writing VTU output

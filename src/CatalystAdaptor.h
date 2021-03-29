@@ -5,9 +5,14 @@
 #include <string>
 
 namespace CatalystAdaptor {
-    void Initialize(const char *path);
+    void Initialize(const char *path,
+                    const char *cell_type,
+                    const char *field_label);
 
     void Finalize();
 
-    void CoProcess(femocs::Femocs &project, const double time, const unsigned int timeStep, const bool lastTimeStep);
+    void CoProcess(femocs::Femocs &project,
+                   const double time,
+                   const unsigned int timeStep,
+                   const bool lastTimeStep);
 }

@@ -100,158 +100,30 @@ namespace CatalystAdaptor {
         }
         printf("CatalystAdaptor::CoProcess has been called\n");
 
+        // exporting mesh nodes
         const double *nodes = NULL;
-        const int n_nodes = project.export_data(&nodes, "nodes"); // TODO: rename n_nodes, it's n_atoms
-        printf("nodes: %.3d\n", n_nodes);
+        const int n_nodes = project.export_data(&nodes, "nodes");
 
-//        const int *cells = NULL;
-//        const int n_cells = project.export_data(&cells, cell_type_g);
-//        printf("%s cells: %.3d\n", cell_type_g, n_cells);
-//
-//        // Field data
-//
-//        double temperature_data[n_nodes] = {0};
-//        project.export_data(temperature_data, n_nodes, "temperature");
-//        vtkNew <vtkDoubleArray> temperature;
-//        temperature->SetName("temperature");
-//        temperature->SetArray(temperature_data, n_nodes, 1);
-//
-//        // making VTK points and cells
-//
-//        double coordinates[n_nodes][n_coordinates];
-//        for (int i = 0; i < n_nodes; i++) {
-//            for (int j = 0; j < n_coordinates; j++)
-//                coordinates[i][j] = nodes[n_coordinates * i + j];
-//        }
-//        vtkNew <vtkPoints> points;
-//        for (int i = 0; i < n_nodes; i++)
-//            points->InsertPoint(i, coordinates[i]);
-//
-//        vtkIdType cellsIndicies[n_cells][n_nodes_per_cell];
-//        for (int i = 0; i < n_cells; i++) {
-//            for (int j = 0; j < n_nodes_per_cell; j++) {
-//                cellsIndicies[i][j] = cells[n_nodes_per_cell * i + j];
-//            }
-//        }
-//
-//        // creating VTK grid
-//        vtkNew <vtkUnstructuredGrid> grid;
-//        grid->Allocate(n_cells);
-//        for (int i = 0; i < n_cells; i++)
-//            grid->InsertNextCell(vtk_cell_type, n_nodes_per_cell, cellsIndicies[i]);
-//        grid->SetPoints(points);
-//        grid->GetPointData()->AddArray(temperature);
-////            grid->GetCellData()->AddArray(temperature);
-////            grid->GetCellData()->AddArray(elfield_norm);
-//        grid->Squeeze();
-
-
-
-
-
-
-//        // grid with mesh
-//
-//        const int *cells = NULL;
-//        const int n_cells = project.export_data(&cells, cell_type_g);
-//        printf("%s cells: %.3d\n", cell_type_g, n_cells);
-//
-//        double coordinates[n_nodes][n_coordinates];
-//        for (int i = 0; i < n_nodes; i++) {
-//            for (int j = 0; j < n_coordinates; j++)
-//                coordinates[i][j] = nodes[n_coordinates * i + j];
-//        }
-//        vtkNew <vtkPoints> points;
-//        for (int i = 0; i < n_nodes; i++)
-//            points->InsertPoint(i, coordinates[i]);
-//
-//        vtkIdType cellsIndicies[n_cells][n_nodes_per_cell];
-//        for (int i = 0; i < n_cells; i++) {
-//            for (int j = 0; j < n_nodes_per_cell; j++) {
-//                cellsIndicies[i][j] = cells[n_nodes_per_cell * i + j];
-//            }
-//        }
-//
-//        vtkNew <vtkUnstructuredGrid> mesh_grid;
-//        mesh_grid->Allocate(n_cells);
-//        for (int i = 0; i < n_cells; i++)
-//            mesh_grid->InsertNextCell(vtk_cell_type, n_nodes_per_cell, cellsIndicies[i]);
-//        mesh_grid->SetPoints(points);
-//
-//        // grid with atoms
-//
-//        vtkNew <vtkPoints> atom_points;
-//        vtkNew <vtkCellArray> vertices;
-//
-//        for (int i = 0; i < natoms_g; i++) {
-//            atom_points->InsertPoint(i, (*atoms_g)[i * 3], (*atoms_g)[i * 3 + 1], (*atoms_g)[i * 3 + 2]);
-//
-//            vertices->InsertNextCell(1);
-//            vertices->InsertCellPoint(i);
-//        }
-//
-//        double temperature_data[n_nodes] = {0};
-//        project.export_data(temperature_data, n_nodes, "temperature");
-//        vtkNew <vtkDoubleArray> temperature;
-//        temperature->SetName("temperature");
-//        temperature->SetArray(temperature_data, n_nodes, 1);
-//
-//        vtkNew <vtkUnstructuredGrid> atom_grid;
-//        atom_grid->SetPoints(atom_points);
-//        atom_grid->SetCells(VTK_VERTEX, vertices);
-//        atom_grid->GetPointData()->AddArray(temperature);
-//
-//        // merge
-//
-//        vtkNew <vtkMergeCells> merge;
-//        vtkNew <vtkUnstructuredGrid> merged_grid;
-//
-//        merge->SetUnstructuredGrid(merged_grid);
-//        merge->SetTotalNumberOfCells(mesh_grid->GetNumberOfCells() + atom_grid->GetNumberOfCells());
-//        merge->SetTotalNumberOfPoints(mesh_grid->GetNumberOfPoints() + atom_grid->GetNumberOfPoints());
-//        merge->SetTotalNumberOfDataSets(2);
-//        merge->MergeDataSet(mesh_grid);
-//        merge->MergeDataSet(atom_grid);
-
-
-
-        // grid with atoms
-
+        // united points for the dataset
         vtkNew <vtkPoints> points;
-        vtkNew <vtkCellArray> vertices;
-
         points->Allocate(natoms_g + n_nodes);
 
+        vtkNew <vtkCellArray> vertices;
+        // inserting atoms' points and preparing cells
         for (int i = 0; i < natoms_g; i++) {
             points->InsertPoint(i, (*atoms_g)[i * 3], (*atoms_g)[i * 3 + 1], (*atoms_g)[i * 3 + 2]);
-
             vertices->InsertNextCell(1);
             vertices->InsertCellPoint(i);
         }
 
-        double temperature_data[n_nodes] = {0};
-        project.export_data(temperature_data, n_nodes, "temperature");
-        double temp_data[n_nodes + natoms_g];
-        for (int i = 0; i < n_nodes + natoms_g; i++) {
-            if (i < n_nodes) {
-                temp_data[i] = temperature_data[i];
-            } else {
-                temp_data[i] = 0;
-            }
+        // inserting mesh nodes
+        for (int i = 0; i < n_nodes; i++) {
+            points->InsertNextPoint(nodes[i * 3], nodes[i * 3 + 1], nodes[i * 3 + 2]);
         }
-        vtkNew <vtkDoubleArray> temperature;
-        temperature->SetName("temperature");
-        temperature->SetArray(temp_data, n_nodes + natoms_g, 1);
 
-        // mesh
-
+        // preparing mesh cells
         const int *cells = NULL;
         const int n_cells = project.export_data(&cells, cell_type_g);
-
-        vtkIdType mesh_point_ids[n_nodes];
-        for (int i = 0; i < n_nodes; i++) {
-            mesh_point_ids[i] = points->InsertNextPoint(nodes[i * 3], nodes[i * 3 + 1], nodes[i * 3 + 2]);
-        }
 
         vtkIdType mesh_cell_ids[n_cells][n_nodes_per_cell];
         for (int i = 0; i < n_cells; i++) {
@@ -260,31 +132,28 @@ namespace CatalystAdaptor {
             }
         }
 
+        // extracting field data for atoms and zeroing down for mesh nodes
+        double temperature_data[n_nodes] = {0};
+        project.export_data(temperature_data, n_nodes, "temperature"); // NOTE: this field data is for atoms, not mesh nodes
+        double united_temperature_data[n_nodes + natoms_g];
+        for (int i = 0; i < n_nodes + natoms_g; i++) {
+            if (i < n_nodes) {
+                united_temperature_data[i] = temperature_data[i]; // atoms receive the field data
+            } else {
+                united_temperature_data[i] = 0; // need to zero mesh nodes' data
+            }
+        }
+        vtkNew <vtkDoubleArray> temperature;
+        temperature->SetName("temperature");
+        temperature->SetArray(united_temperature_data, n_nodes + natoms_g, 1);
 
-//        double coordinates[n_nodes][n_coordinates];
-//        for (int i = natoms_g; i < natoms_g + n_nodes; i++) {
-//            for (int j = 0; j < n_coordinates; j++)
-//                coordinates[i][j] = nodes[n_coordinates * i + j];
-//        }
-//        for (int i = natoms_g; i < natoms_g + n_nodes; i++)
-//            points->InsertPoint(i, coordinates[i]);
-//
-//        vtkIdType cellsIndicies[n_cells][n_nodes_per_cell];
-//        for (int i = natoms_g; i < natoms_g + n_cells; i++) {
-//            for (int j = 0; j < n_nodes_per_cell; j++) {
-//                cellsIndicies[i][j] = cells[n_nodes_per_cell * i + j];
-//            }
-//        }
-
-        // grid
-
+        // grid generation
         vtkNew <vtkUnstructuredGrid> grid;
         grid->SetPoints(points);
         grid->SetCells(VTK_VERTEX, vertices);
-        for (int i = 0; i < n_cells; i++)
+        for (int i = 0; i < n_cells; i++) // inserting mesh cells
             grid->InsertNextCell(vtk_cell_type, n_nodes_per_cell, mesh_cell_ids[i]);
         grid->GetPointData()->AddArray(temperature);
-
 
         // passing data to Catalyst
         dataDescription->GetInputDescriptionByName("input")->SetGrid(grid);

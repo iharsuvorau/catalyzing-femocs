@@ -47,6 +47,8 @@ target_link_libraries(CatalystAdaptor
         PRIVATE
         ParaView::PythonCatalyst
         VTK::CommonDataModel
+        VTK::FiltersCore
+        VTK::FiltersGeneral
         ${MPI_C_LIBRARIES}
         ${FEMOCS_LIB})
 add_definitions("-DUSE_CATALYST")

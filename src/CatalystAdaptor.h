@@ -11,6 +11,8 @@ namespace CatalystAdaptor {
 
     void Finalize();
 
+    void ImportAtoms(double **atoms, int natoms);
+
     void CoProcess(femocs::Femocs &project,
                    const double time,
                    const unsigned int timeStep,

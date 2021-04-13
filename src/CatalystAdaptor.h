@@ -5,13 +5,11 @@
 #include <string>
 
 namespace CatalystAdaptor {
-    void Initialize(const char *path,
-                    const char *cell_type,
-                    const char *field_label);
+    void Initialize(const char *path, const char *meshCellType);
 
     void Finalize();
 
-    void ImportAtoms(double **atoms, int natoms);
+    void ImportAtoms(double **atoms, int numAtoms);
 
     void CoProcess(femocs::Femocs &project,
                    const double time,

@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
     int n_iterations = 100;
     bool add_rnd_noise = true;
 
-    CatalystAdaptor::Initialize(argv[1], "hexahedron", "temperature");
+    CatalystAdaptor::Initialize(argv[1], "hexahedron");
 
     for (int iter_i = 1; iter_i <= n_iterations; ++iter_i) {
         if (n_iterations > 1)

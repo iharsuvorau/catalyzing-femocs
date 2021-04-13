@@ -11,29 +11,32 @@ from paraview import coprocessing
 def CreateCoProcessor():
     def _CreatePipeline(coprocessor, datadescription):
         class Pipeline:
-            filename_3_pvtu = coprocessor.CreateProducer(datadescription, "input")
+            md_pvtu = coprocessor.CreateProducer(datadescription, "MD")
+            fem_pvtu = coprocessor.CreateProducer(datadescription, "FEM")
 
-            Slice1 = Slice(guiName="Slice1", Crinkleslice=0, SliceOffsetValues=[0.0], Triangulatetheslice=1,
-                           SliceType="Plane")
-            Slice1.SliceType.Offset = 0.0
-            Slice1.SliceType.Origin = [34.5, 32.45, 27.95]
-            Slice1.SliceType.Normal = [1.0, 0.0, 0.0]
+            # Slice1 = Slice(guiName="Slice1", Crinkleslice=0, SliceOffsetValues=[0.0], Triangulatetheslice=1,
+            #                SliceType="Plane")
+            # Slice1.SliceType.Offset = 0.0
+            # Slice1.SliceType.Origin = [34.5, 32.45, 27.95]
+            # Slice1.SliceType.Normal = [1.0, 0.0, 0.0]
 
             # create a new 'Parallel PolyData Writer'
-            parallelPolyDataWriter1 = servermanager.writers.XMLPPolyDataWriter(Input=Slice1)
+            # parallelPolyDataWriter1 = servermanager.writers.XMLPPolyDataWriter(Input=Slice1)
 
             # register the writer with coprocessor
             # and provide it with information such as the filename to use,
             # how frequently to write the data, etc.
-            coprocessor.RegisterWriter(parallelPolyDataWriter1, filename='slice_%t.pvtp', freq=1)
+            # coprocessor.RegisterWriter(parallelPolyDataWriter1, filename='slice_%t.pvtp', freq=1)
 
             # create a new 'Parallel UnstructuredGrid Writer'
-            unstructuredGridWriter1 = servermanager.writers.XMLPUnstructuredGridWriter(Input=filename_3_pvtu)
+            # unstructuredGridWriter1 = servermanager.writers.XMLPUnstructuredGridWriter(Input=md_pvtu)
+            # unstructuredGridWriter2 = servermanager.writers.XMLPUnstructuredGridWriter(Input=fem_pvtu)
 
             # register the writer with coprocessor
             # and provide it with information such as the filename to use,
             # how frequently to write the data, etc.
-            coprocessor.RegisterWriter(unstructuredGridWriter1, filename='fullgrid_%t.pvtu', freq=1)
+            # coprocessor.RegisterWriter(unstructuredGridWriter1, filename='md_%t.pvtu', freq=1)
+            # coprocessor.RegisterWriter(unstructuredGridWriter2, filename='fem_%t.pvtu', freq=1)
 
         return Pipeline()
 
@@ -42,7 +45,7 @@ def CreateCoProcessor():
             self.Pipeline = _CreatePipeline(self, datadescription)
 
     coprocessor = CoProcessor()
-    freqs = {'input': [1]}
+    freqs = {'MD': [1], 'FEM': [1]}
     coprocessor.SetUpdateFrequencies(freqs)
     return coprocessor
 
@@ -68,8 +71,9 @@ def RequestDataDescription(datadescription):
         # We are just going to request all fields and meshes from the simulation
         # code/adaptor.
         for i in range(datadescription.GetNumberOfInputDescriptions()):
-            datadescription.GetInputDescription(i).AllFieldsOn()
-            datadescription.GetInputDescription(i).GenerateMeshOn()
+            dd = datadescription.GetInputDescription(i)
+            dd.AllFieldsOn()
+            dd.GenerateMeshOn()
         return
 
     # setup requests for all inputs based on the requirements of the

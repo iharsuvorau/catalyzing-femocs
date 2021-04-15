@@ -1,8 +1,5 @@
 #pragma once
-
-#include "CatalystAdaptor.h"
 #include "Femocs.h"
-#include <string>
 
 namespace CatalystAdaptor {
     void Initialize(const char *path, const char *meshCellType);

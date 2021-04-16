@@ -133,16 +133,27 @@ namespace CatalystAdaptor {
         // extracting field data for atoms
 
         double temperatureData[numAtoms] = {0};
-        project.export_data(temperatureData, numAtoms, "temperature"); // NOTE: this field data is for atoms, not mesh nodes
+        project.export_data(temperatureData, numAtoms, "temperature");
         vtkNew <vtkDoubleArray> temperature;
         temperature->SetName("temperature");
         temperature->SetArray(temperatureData, numAtoms, 1);
 
         double elfieldNormData[numAtoms] = {0};
-        project.export_data(elfieldNormData, numAtoms, "elfield_norm"); // NOTE: this field data is for atoms, not mesh nodes
+        project.export_data(elfieldNormData, numAtoms, "elfield_norm");
         vtkNew <vtkDoubleArray> elfieldNorm;
-        elfieldNorm->SetName("electric field");
+        elfieldNorm->SetName("electric field normals");
         elfieldNorm->SetArray(elfieldNormData, numAtoms, 1);
+
+        double elfieldData[numAtoms * 3] = {0};
+        project.export_data(elfieldData, numAtoms * 3, "elfield");
+        vtkNew <vtkDoubleArray> elfield;
+        elfield->SetName("electic field");
+        elfield->SetNumberOfComponents(3);
+        elfield->SetNumberOfTuples(numAtoms);
+        for (int i = 0; i < numAtoms * 3; i++) {
+            elfieldData[i] *= -1;
+        }
+        elfield->SetArray(elfieldData, numAtoms * 3, 1);
 
         // making atomistic grid
         vtkNew <vtkUnstructuredGrid> atomsGrid;
@@ -150,6 +161,7 @@ namespace CatalystAdaptor {
         atomsGrid->SetCells(VTK_VERTEX, atomCells);
         atomsGrid->GetPointData()->AddArray(temperature);
         atomsGrid->GetPointData()->AddArray(elfieldNorm);
+        atomsGrid->GetPointData()->SetVectors(elfield);
 
 
         // Passing data to Catalyst
